@@ -1,0 +1,17 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+xgboost
+catboost
+lightgbm
+tqdm
+requests
+beautifulsoup4
+lxml
+optuna
+flask
+jinja2
+uvicorn
+fastapi
