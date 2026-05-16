@@ -1,2 +1,4 @@
-# used-car-price-analysis
-Used car price prediction using crawled vehicle data
+# 중고차 가격 예측 시스템
+"엔카" 중고차 사이트에 있는 자동차 정보를 크롤링한다음 
+머신러닝을 활용해 가격 예측 시스템을 만들어봤습니다
+ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
