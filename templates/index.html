@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>중고차 가격 예측기</title>
+    <script src="/models.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f6f7;
+            color: #222;
+        }
+        header {
+            background-color: #03c75a;
+            padding: 16px;
+            text-align: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 640px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #03c75a;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        form label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+            margin-top: 15px;
+        }
+        input, button {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: #03c75a;
+            outline: none;
+        }
+        button {
+            background-color: #03c75a;
+            color: white;
+            font-weight: bold;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #02b155;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<header>
+    🚘 중고차 가격 예측기
+</header>
+<div class="container">
+    <h2>중고차 가격을 스마트하게 예측해보세요!</h2>
+    <form id="predictForm">
+        <label>모델명:
+            <input list="model_list" name="model_name" id="modelInput" required placeholder="예: 쏘나타 (DN8)">
+            <datalist id="model_list"></datalist>
+        </label>
+        <label>연식:
+            <input type="number" name="year" placeholder="예: 202010 (2020년 10월)" required>
+        </label>
+        <label>주행거리: <input type="number" name="mileage" placeholder="예: 80000" required></label>
+        <label>모델연도: <input type="number" name="model_year" placeholder="예: 2020" required></label>
+        <label>내차 피해 금액:
+            <input type="number" step="any" name="damage_mycar" placeholder="예: 120.5 (만원)" required>
+        </label>
+        <label>타차 가해 금액:
+            <input type="number" step="any" name="damage_othercar" placeholder="예: 330.7 (만원)" required>
+        </label>
+        <label>배지:
+            <input list="badge_list" name="badge" id="badgeInput" required placeholder="예: 프리미엄">
+            <datalist id="badge_list"></datalist>
+        </label>
+        <label>세부 배지:
+            <input list="badge_detail_list" name="badge_detail" id="badgeDetailInput" placeholder="예: 블랙 에디션">
+            <datalist id="badge_detail_list">
+                <option value="선택 안 함"></option>
+            </datalist>
+        </label>
+        <button type="submit">예측하기</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("model_list").innerHTML = modelOptions;
+    });
+
+    document.getElementById("modelInput").addEventListener("input", async function() {
+        const modelName = this.value;
+        const res = await fetch(`/badge-options/${encodeURIComponent(modelName)}`);
+        const data = await res.json();
+
+        document.getElementById("badge_list").innerHTML = data.badge.map(b => `<option value="${b}">`).join("");
+        document.getElementById("badge_detail_list").innerHTML =
+            data.badge_detail.map(b => `<option value="${b}">`).join("") + `<option value="선택 안 함">`;
+    });
+
+    document.getElementById("predictForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((v, k) => data[k] = v);
+
+        const res = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        document.getElementById("result").innerHTML = result.predicted_price
+            ? `예측된 가격: <span style="color:#03c75a">${result.predicted_price.toLocaleString()}</span> 만원`
+            : `<span style="color:red">❌ 오류: ${result.error}</span>`;
+    });
+</script>
+</body>
+</html>
