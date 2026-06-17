@@ -128,14 +128,6 @@ Optuna를 활용하여 하이퍼파라미터 최적화를 수행하였다.
 
 최적 모델 기반으로 최종 학습을 진행하였다.
 
-### Evaluation
-
-평가지표
-
-* MAE
-* RMSE
-* R² Score
-
 ---
 
 ## 🌐 Web Service
